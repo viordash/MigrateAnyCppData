@@ -5,7 +5,8 @@ set(CMAKE_CXX_STANDARD 14)
 include(CTest)
 
 add_executable(MigrateAny main.cpp 
-        MigrateAnyData/MigrateAnyData.cpp)
+        MigrateAnyData/MigrateAnyData.cpp
+        DeviceConfig.cpp)
 
 add_executable(TestMigrateDown
         Tests/MigrateDown.cpp
