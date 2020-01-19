@@ -12,9 +12,9 @@ typedef uint32_t TVersion;
 const char *DeviceConfigFileName = "DeviceConfig.dat";
 
 typedef struct {
-	uint32_t Version;
+	TVersion Version;
 	TDeviceConfig Config;
-} TStoredDeviceConfig, *PTStoredDeviceConfig;
+} TStoredDeviceConfig;
 
 static TVersion GetStoredConfigVersion();
 static size_t GetStoredConfigSize();
@@ -39,13 +39,13 @@ bool ReadDeviceConfig(PTDeviceConfig pConfig) {
 
 	TMigrateResult migrateResult
 		= MigrateData::Run(version, DEVICE_CONFIG_VERSION, &DeviceConfigMigrations, storedData, storedSize, pConfig, [](void *parent, void *pItem) -> bool {
-			  memcpy(parent, pItem, sizeof(TStoredDeviceConfig));
+			  memcpy(parent, pItem, sizeof(*pConfig));
 			  return true;
 		  });
 	if (migrateResult == MigrateRes_Migrate) {
 		return true;
 	} else if (migrateResult == MigrateRes_Skipped && storedData != NULL) {
-		memcpy(pConfig, storedData, sizeof(TStoredDeviceConfig));
+		memcpy(pConfig, storedData, sizeof(*pConfig));
 	}
 
 	if (version > INITIAL_VERSION) {
