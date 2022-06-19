@@ -6,7 +6,7 @@
         {
             "label": "build all",
             "type": "shell",
-            "command": "/usr/bin/cmake --build /home/viordash/Projects/MigrateAny/build --config Debug --target all -- -j 8",
+            "command": "/usr/bin/cmake --build ./build --config Debug --target all -- -j 8",
             "problemMatcher": [
                 "$gcc"
             ],
