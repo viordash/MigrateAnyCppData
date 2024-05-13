@@ -124,7 +124,7 @@ bool MigrateData::MigrateDown(PTDataMigrate pStored, void *pStoredData, PTDataMi
 }
 
 PTDataMigrate MigrateData::Find(uint32_t version, const TDataMigrateItems *pMigrateData) {
-	for (size_t i = 0; i < pMigrateData->Count; i++) {
+	for (int i = 0; i < pMigrateData->Count; i++) {
 		PTDataMigrate pDataMigrate = (PTDataMigrate)&pMigrateData->Items[i];
 		if (pDataMigrate->Version == version) {
 			return pDataMigrate;
