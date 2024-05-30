@@ -1,31 +1,31 @@
-Модуль версионной миграции структурных данных в C/C++, при обновлениях программного обеспечения с изменением этих структур.
-Поддерживается миграция вверх и вниз по версиям. Миграция вниз через промежуточную версию.
+Library for versioned migration of structured data in C/C++. This library allows you to change these structures without losing any stored data during software updates. The library supports migration up and down between versions. Migration down through the intermediate version.
 
-Использование библиотеки:
-- подключить MigrateAnyData/MigrateAnyData.cpp и MigrateAnyData/MigrateAnyData.h к рабочему проекту
-- в модуль, с предполагаемым использованием миграции, для примера назовем его DeviceConfig, добавить хранилище, в котором хранится номер версии и сами данные. Например обычный файл, в первых 4-х байтах которого хранится номер версии, и затем сами данные.
-- в модуле DeviceConfig вызываем MigrateData::Run и передаем аргументы:
-	- storedVersion, версия данных в хранилище. Если хранилище пустое, то INITIAL_VERSION.
-	- currentVersion, текущая версия конфигурации (инкрементальная константа DEVICE_CONFIG_VERSION).
-	- pMigrateData, указатель на массив миграций (DeviceConfigMigrations).
-	- pStoredData, массив с данными из хранилища (storedData).
-	- storedSize, размер массива с данными (storedSize).
-	- parent, указатель на структуру с рабочей конфигурацей (pConfig).
-	- onMigrateDataItem, callback функция, для копирования мигрированных данных в рабочую конфигурацию. Вызывается по окончании всех миграций.
-- дальнейшие действия зависят от результата работы метода, TMigrateResult:
-	- MigrateRes_Migrate, миграция произведена успешно, в рабочей конфигурации находятся актуальные данные.
-	- MigrateRes_Skipped, не было необходимости в миграции, версии соответствуют. Необходимо скопировать массив с данными из хранилища в рабочую конфигурации.
-	- MigrateRes_Error, ошибка при миграции. Дополнительная информация в stderr.
+Using the library:
+- add MigrateAnyData/MigrateAnyData.cpp and MigrateAnyData/MigrateAnyData.h to the working project.
+- in the module with the intended use of migration, for example call it DeviceConfig, add the storage where the version number and the data are stored. For example, a normal file with the first 4 bytes containing the version number and then the data itself.
+- in the DeviceConfig module call MigrateData::Run and pass arguments:
+	- storedVersion, a version of the data in the storage. If the storage is empty, then INITIAL_VERSION.
+	- currentVersion, current version of the configuration (incremental constant DEVICE_CONFIG_VERSION).
+	- pMigrateData, pointer to the migration array (DeviceConfigMigrations).
+	- pStoredData, an array of data from the storage (storedData).
+	- storedSize, the size of the data array (storedSize).
+	- parent, a pointer to a structure with a working configuration (pConfig).
+	- onMigrateDataItem, callback function, to copy migrated data into the working configuration. Called after all migrations have ended.
+- further actions depend on the result of the method, TMigrateResult:
+	- MigrateRes_Migrate, the migration was successful, the working configuration contains the actual data.
+	- MigrateRes_Skipped: No migration is needed, as the versions match. Instead, we need to copy the data array from the storage into the working configuration.
+	- MigrateRes_Error, error during migration. Additional information in stderr.
 
-Миграции:
-- массив миграций (DeviceConfigMigrations) содержит структуру TDataMigrateItems. В ней указывается список действий для проведения миграции и также размер этого списка.
+Migrations:
+- the migration array (DeviceConfigMigrations) contains the TDataMigrateItems structure. It specifies the list of actions for migration and also the size of the list.
+
 
 		const TDataMigrateItems DeviceConfigMigrations = {
 			Migrate_DeviceConfig,										   //
 			sizeof(Migrate_DeviceConfig) / sizeof(Migrate_DeviceConfig[0]) //
 		};
 
-- элемент списка миграции, это сценарий для трансформации данных с одной версии на другую. 
+- the migration list element is a script for transforming data from one version to another.
 
 		const TDataMigrate Migrate_DeviceConfig[] = {
 			{INITIAL_VERSION, 0, 0, 0},
@@ -36,8 +36,8 @@
 			MigrateDeviceConfig::V00000005::DataMigrate, //
 		};
 
-- нулевым элементом обязательно должен быть {INITIAL_VERSION(0), 0, 0, 0}.
-- сценарий миграции, это h файл с набором команд по переносу данных. В нем хранится "отпечаток" (namespace Snapshot) структуры данных текущего для этой версии миграции.
+- the zero element must be {INITIAL_VERSION(0), 0, 0, 0, 0}.
+- migration script, is h file with a set of migration commands. It stores the snapshot (namespace Snapshot) of the current data structure for this version of migration.
 
 		namespace Snapshot {
 			typedef struct {
@@ -49,9 +49,9 @@
 			} TDeviceConfig, *PTDeviceConfig;
 		} // namespace Snapshot
 
-- связь со сценарием прошлой версии производится через ссылку на тип в сценарии прошлой версии (PTDeviceConfig_prev). В сценарии для INITIAL_VERSION такой ссылки нет, производится только установка начальных параметров.
-- каждый сценарий заключен в свой namespace, *namespace MigrateDeviceConfig { namespace Initial { ... } namespace V00000005 { ... } }* 
-- каждый сценарий в методе MigrateUp производит действия для обновления на новую версию.
+- link to the scenario of previous version is made through a reference to type in the scenario of previous version (PTDeviceConfig_prev). There is no such link in INITIAL_VERSION script, only initial parameters are set.
+- each scenario is in its own namespace, *namespace MigrateDeviceConfig { namespace Initial { ... } namespace V00000005 { ... } }* 
+- each scenario in the MigrateUp method performs actions to upgrade to a new version.
 
 		//DeviceConfig_0005.h MigrateUp
 		auto pCurrConfig = (Snapshot::PTDeviceConfig)pCurr;
@@ -62,7 +62,7 @@
 		memcpy(&pCurrConfig->EnableIR, &pPrevConfig->EnableIR, sizeof(pCurrConfig->EnableIR));
 		pCurrConfig->DisableKeypad = false;
 		
-- каждый сценарий в методе MigrateDown содержит команды для отката на предыдущую версию. Полноценный откат возможно произвести только с промежуточной версией, в которой будет сценарий новой версии, но DEVICE_CONFIG_VERSION будет меньше
+- each scenario in the MigrateDown method contains commands to roll back to the previous version. A full rollback can only be performed with an intermediate version, which will have a scenario for the new version, but DEVICE_CONFIG_VERSION will be less.
 
 		//DeviceConfig_0005.h MigrateDown
 		auto pCurrConfig = (Snapshot::PTDeviceConfig)pCurr;
@@ -72,30 +72,30 @@
 		memcpy(&pPrevConfig->CommunicationTimeout, &pCurrConfig->CommunicationTimeout, sizeof(pPrevConfig->CommunicationTimeout));
 		memcpy(&pPrevConfig->EnableIR, &pCurrConfig->EnableIR, sizeof(pPrevConfig->EnableIR));
 
-- можно применять для миграции массива табличных данных. Миграция происходит для каждого элемента поочереди, поэлементное сохранение в целевой набор данных, необходимо производить в callback TOnMigrateDataItem.
+- it can be used to migrate an array of tabular data. Migration occurs for each element in turn, element-by-element saving to the target dataset must be performed in the callback TOnMigrateDataItem..
 
-Минимальный перечень изменений при добавлении новой версии версионных данных:
- - создание h файла сценария миграции. Можно упростить путем копипаста последней версии.
-	- переименование namespace (V00000006).
-	- указание номера версии (const TDataMigrate DataMigrate = {0x00000006, ...) 
-	- переименование namespace для ссылки на предыдущую версию, PTDeviceConfig_prev (V00000005).
-	- создания "отпечатка" текущих версионных данных в namespace Snapshot.
-	- реализация тела методов MigrateUp и MigrateDown.
-- добавление записи в конец списка Migrate_DeviceConfig (MigrateDeviceConfig::V00000006::DataMigrate, //). 
+Minimum list of changes when adding a new version of version data:
+ - creating h file of migration scenario. It can be simplified by copying from the latest version.
+	- rename the namespace (V00000006).
+	- specifying the version number (const TDataMigrate DataMigrate = {0x00000006, ...) 
+	- renaming namespace of link to previous version, PTDeviceConfig_prev (V00000005).
+	- creating a "snapshot" of current version data in namespace Snapshot.
+	- implementation of body of MigrateUp and MigrateDown methods.
+- adding an entry to the end of the Migrate_DeviceConfig array (MigrateDeviceConfig::V00000006::DataMigrate, //). 
 
-Названия версий в namespace (V00000006) для удобства можно изменить на календарный формат, например V20200118.
+Version names in namespace (V00000006) can be changed to calendar format for convenience, such as V20200118.
 
 ------------
-Пример использования в main.cpp / DeviceConfig.cpp / DeviceConfig.h.
-В структуре TDeviceConfig хранятся настройки устройства.
-Методы:
- - bool ReadDeviceConfig(PTDeviceConfig pConfig);  //чтение настроек
- - void StoreDeviceConfig(PTDeviceConfig pConfig); //сохранение настроек
+Example of use in main.cpp / DeviceConfig.cpp / DeviceConfig.h.
+The TDeviceConfig structure stores the device settings.
+Methods:
+ - bool ReadDeviceConfig(PTDeviceConfig pConfig);  //read config
+ - void StoreDeviceConfig(PTDeviceConfig pConfig); //store config
  
-Файл с конфигом ("DeviceConfig.dat") хранит также и номер текущей версии.
-В данном примере имеются уже 5 миграций (DEVICE_CONFIG_VERSION), и сценарий их возникновения таков:
-- **DeviceConfig_Initial.h**. Первоначальная версия, конфиг хранит только поле Name[8].
-- **DeviceConfig_0002.h**. Поле Name увеличено до 16 символов.
-- **DeviceConfig_0003.h**. Добавлены поля CommunicationTimeout и spare[4].
-- **DeviceConfig_0004.h**. Удалено поле spare[4]. Добавлены поле EnableIR.
-- **DeviceConfig_0005.h**. Добавлены поле DisableKeypad.
+The config file ("DeviceConfig.dat") also stores the current version number.
+In this example there are already 5 migrations (DEVICE_CONFIG_VERSION) and the scenario of their occurrence is:
+- **DeviceConfig_Initial.h**. Initial version, the config stores only the Name[8] field.
+- **DeviceConfig_0002.h**. Name field has been increased to 16 characters.
+- **DeviceConfig_0003.h**. CommunicationTimeout and spare[4] fields were added.
+- **DeviceConfig_0004.h**. The spare[4] field has been removed. The EnableIR field has been added.
+- **DeviceConfig_0005.h**. Added DisableKeypad field.
