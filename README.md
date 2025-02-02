@@ -1,4 +1,8 @@
+[![CMake on multiple platforms](https://github.com/viordash/MigrateAnyCppData/actions/workflows/cmake-multi-platform.yml/badge.svg)](https://github.com/viordash/MigrateAnyCppData/actions/workflows/cmake-multi-platform.yml)
+
 Library for versioned migration of structured data in C/C++. This library allows you to change these structures without losing any stored data during software updates. The library supports up and down migration between versions. Down migration is performed using intermediate version.
+
+![1717238881056](https://github.com/user-attachments/assets/d0a6b693-46d0-4a3c-9a47-c6e657b859ce)
 
 ### How to use:
 - add MigrateAnyData/MigrateAnyData.cpp and MigrateAnyData/MigrateAnyData.h to the working project.
