@@ -1,6 +1,5 @@
 #pragma once
 
-#include "DeviceConfig.h"
 #include "DeviceConfig_Initial.h"
 #include "DeviceConfig_0002.h"
 #include "DeviceConfig_0003.h"
@@ -21,3 +20,5 @@ const TDataMigrateItems DeviceConfigMigrations = {
 	Migrate_DeviceConfig,										   //
 	sizeof(Migrate_DeviceConfig) / sizeof(Migrate_DeviceConfig[0]) //
 };
+
+namespace CurrentVersion = MigrateDeviceConfig::V00000005::Snapshot;

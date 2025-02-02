@@ -3,11 +3,11 @@
 #include <stdlib.h>
 #include "DeviceConfig.h"
 
-TDeviceConfig DeviceConfig;
+CurrentVersion::TDeviceConfig DeviceConfig;
 
 int main(const int argc, const char *argv[]) {
 	if (ReadDeviceConfig(&DeviceConfig)) {
-		fprintf(stdout, "DeviceConfig read successfully, Name:%s, RestartCount:%d, CommunicationTimeout:%d\n", DeviceConfig.Name, DeviceConfig.RestartCount,
+		fprintf(stdout, "DeviceConfig read successfully, Name:%s, RestartCount:%u, CommunicationTimeout:%u\n", DeviceConfig.Name, DeviceConfig.RestartCount,
 				DeviceConfig.CommunicationTimeout);
 	}
 

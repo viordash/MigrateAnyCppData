@@ -1,7 +1,6 @@
 
 #include "DeviceConfig.h"
 #include "MigrateAnyData/MigrateAnyData.h"
-#include "MigrateDeviceConfig.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,14 +12,14 @@ const char *DeviceConfigFileName = "DeviceConfig.dat";
 
 typedef struct {
 	TVersion Version;
-	TDeviceConfig Config;
+	CurrentVersion::TDeviceConfig Config;
 } TStoredDeviceConfig;
 
 static TVersion GetStoredConfigVersion();
 static size_t GetStoredConfigSize();
 static bool ReadStoredConfig(uint8_t *buffer, size_t bufferSize);
 
-bool ReadDeviceConfig(PTDeviceConfig pConfig) {
+bool ReadDeviceConfig(CurrentVersion::PTDeviceConfig pConfig) {
 	TVersion version = GetStoredConfigVersion();
 	size_t storedSize = GetStoredConfigSize();
 	uint8_t *storedData = NULL;
@@ -54,7 +53,7 @@ bool ReadDeviceConfig(PTDeviceConfig pConfig) {
 	return false;
 }
 
-void StoreDeviceConfig(PTDeviceConfig pConfig) {
+void StoreDeviceConfig(CurrentVersion::PTDeviceConfig pConfig) {
 	FILE *fData;
 	fData = fopen(DeviceConfigFileName, "wb");
 	if (fData == NULL) {

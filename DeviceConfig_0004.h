@@ -1,8 +1,6 @@
 #pragma once
 
-#include "DeviceConfig.h"
 #include "MigrateAnyData/MigrateAnyData.h"
-#include "MigrateDeviceConfig.h"
 
 namespace MigrateDeviceConfig {
 	namespace V00000004 {
