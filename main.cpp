@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "DeviceConfig.h"
 
-TDeviceConfig DeviceConfig;
+CurrentVersion::TDeviceConfig DeviceConfig;
 
 int main(const int argc, const char *argv[]) {
 	if (ReadDeviceConfig(&DeviceConfig)) {
