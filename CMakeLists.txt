@@ -47,6 +47,10 @@ add_executable(TestError_Zero_Record_Size
         Tests/Error_Zero_Record_Size.cpp
         MigrateAnyData/MigrateAnyData.cpp)
 
+add_executable(TestError_Null_Migrate_Function
+        Tests/Error_Null_Migrate_Function.cpp
+        MigrateAnyData/MigrateAnyData.cpp)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
@@ -61,3 +65,4 @@ add_test(TestError_Stored_Version__Do_Initial_And_MigrateUp TestError_Stored_Ver
 add_test(TestError_Current_Version_Return_Error TestError_Current_Version_Return_Error)
 add_test(TestError_In_Args TestError_In_Args)
 add_test(TestError_Zero_Record_Size TestError_Zero_Record_Size)
+add_test(TestError_Null_Migrate_Function TestError_Null_Migrate_Function)
