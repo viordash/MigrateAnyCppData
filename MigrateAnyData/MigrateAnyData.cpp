@@ -28,9 +28,9 @@ TMigrateResult MigrateData::Run(uint32_t storedVersion, uint32_t currentVersion,
 		fprintf(stderr, "MigrateData. no migration found for current");
 		return MigrateRes_Error;
 	}
-	int recordsCount;
-	int currentRecordSize = pCurrent->GetSizeOfCurrentData();
-	int storedRecordSize;
+	size_t recordsCount;
+	size_t currentRecordSize = pCurrent->GetSizeOfCurrentData();
+	size_t storedRecordSize;
 
 	if (pStored->Version > INITIAL_VERSION && storedSize != 0) {
 		storedRecordSize = pStored->GetSizeOfCurrentData();
@@ -44,12 +44,18 @@ TMigrateResult MigrateData::Run(uint32_t storedVersion, uint32_t currentVersion,
 		storedRecordSize = 0;
 	}
 
-	uint8_t *currentData = new uint8_t[recordsCount * currentRecordSize];
+	size_t totalSize = recordsCount * currentRecordSize;
+	if (currentRecordSize != 0 && totalSize / currentRecordSize != recordsCount) {
+		fprintf(stderr, "MigrateData. integer overflow in buffer size calculation");
+		return MigrateRes_Error;
+	}
+
+	uint8_t *currentData = new uint8_t[totalSize];
 
 	bool success = false;
 	uint8_t *pStoredObj = (uint8_t *)pStoredData;
 	uint8_t *pCurrentObj = currentData;
-	uint8_t *bufferEnd = currentData + (recordsCount * currentRecordSize);
+	uint8_t *bufferEnd = currentData + totalSize;
 	while (pCurrentObj < bufferEnd) {
 		if (MigrateUp(pStored, pStoredObj, pCurrent, pCurrentObj) || MigrateDown(pStored, pStoredObj, pCurrent, pCurrentObj)) {
 			if (!onMigrateDataItem(parent, pCurrentObj)) {
