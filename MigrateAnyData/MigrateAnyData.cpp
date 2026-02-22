@@ -9,6 +9,10 @@ TMigrateResult MigrateData::Run(uint32_t storedVersion, uint32_t currentVersion,
 	if (storedVersion == currentVersion) {
 		return MigrateRes_Skipped;
 	}
+	if (onMigrateDataItem == NULL) {
+		fprintf(stderr, "MigrateData. onMigrateDataItem callback is null");
+		return MigrateRes_Error;
+	}
 	if (pStoredData == NULL && storedVersion > INITIAL_VERSION) {
 		return MigrateRes_Error;
 	}
@@ -83,6 +87,10 @@ bool MigrateData::MigrateUp(PTDataMigrate pStored, void *pStoredData, PTDataMigr
 	uint8_t *tempNextAfterStored = NULL;
 	while (pCurrent > pStored) {
 		PTDataMigrate pNextVersionAfterStored = pStored + 1;
+		if (pNextVersionAfterStored->MigrateUp == NULL) {
+			delete[] tempNextAfterStored;
+			return false;
+		}
 		uint8_t *temp = tempNextAfterStored;
 		tempNextAfterStored = new uint8_t[pNextVersionAfterStored->GetSizeOfCurrentData()];
 
@@ -104,6 +112,10 @@ bool MigrateData::MigrateDown(PTDataMigrate pStored, void *pStoredData, PTDataMi
 	uint8_t *tempPrevBeforeStored = NULL;
 	while (pCurrent < pStored) {
 		PTDataMigrate pPrevVersionBeforeStored = pStored - 1;
+		if (pStored->MigrateDown == NULL) {
+			delete[] tempPrevBeforeStored;
+			return false;
+		}
 		uint8_t *temp = tempPrevBeforeStored;
 		tempPrevBeforeStored = new uint8_t[pPrevVersionBeforeStored->GetSizeOfCurrentData()];
 
