@@ -45,10 +45,6 @@ TMigrateResult MigrateData::Run(uint32_t storedVersion, uint32_t currentVersion,
 	}
 
 	uint8_t *currentData = new uint8_t[recordsCount * currentRecordSize];
-	if (currentData == NULL) {
-		fprintf(stderr, "MigrateData. (%d). not enough memory", recordsCount * currentRecordSize);
-		return MigrateRes_Error;
-	}
 
 	bool success = false;
 	uint8_t *pStoredObj = (uint8_t *)pStoredData;
@@ -79,10 +75,6 @@ bool MigrateData::MigrateUp(PTDataMigrate pStored, void *pStoredData, PTDataMigr
 		PTDataMigrate pNextVersionAfterStored = pStored + 1;
 		uint8_t *temp = tempNextAfterStored;
 		tempNextAfterStored = new uint8_t[pNextVersionAfterStored->GetSizeOfCurrentData()];
-		if (tempNextAfterStored == NULL) {
-			delete[] temp;
-			return false;
-		}
 
 		pNextVersionAfterStored->MigrateUp(tempNextAfterStored, pStoredData);
 		delete[] temp;
@@ -104,10 +96,6 @@ bool MigrateData::MigrateDown(PTDataMigrate pStored, void *pStoredData, PTDataMi
 		PTDataMigrate pPrevVersionBeforeStored = pStored - 1;
 		uint8_t *temp = tempPrevBeforeStored;
 		tempPrevBeforeStored = new uint8_t[pPrevVersionBeforeStored->GetSizeOfCurrentData()];
-		if (tempPrevBeforeStored == NULL) {
-			delete[] temp;
-			return false;
-		}
 
 		pStored->MigrateDown(pStoredData, tempPrevBeforeStored);
 		delete[] temp;
