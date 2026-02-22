@@ -34,6 +34,10 @@ TMigrateResult MigrateData::Run(uint32_t storedVersion, uint32_t currentVersion,
 
 	if (pStored->Version > INITIAL_VERSION && storedSize != 0) {
 		storedRecordSize = pStored->GetSizeOfCurrentData();
+		if (storedRecordSize == 0) {
+			fprintf(stderr, "MigrateData. stored record size is zero");
+			return MigrateRes_Error;
+		}
 		if (storedSize % storedRecordSize != 0) {
 			fprintf(stderr, "MigrateData. stored data does not match the migration");
 			return MigrateRes_Error;
