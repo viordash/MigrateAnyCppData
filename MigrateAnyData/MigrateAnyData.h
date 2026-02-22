@@ -36,7 +36,10 @@ class MigrateData {
 };
 
 #define STRING_FIELD_MIGR_UP(field)                                                                                                                            \
-	{ strncpy(pCurrSettings->field, pPrevSettings->field, sizeof(pCurrSettings->field) - 1); }
+	{                                                                                                                                                              \
+		strncpy(pCurrSettings->field, pPrevSettings->field, sizeof(pCurrSettings->field) - 1);                                                                     \
+		pCurrSettings->field[sizeof(pCurrSettings->field) - 1] = '\0';                                                                                             \
+	}
 
 #define MEM_FIELD_MIGR_UP(field)                                                                                                                               \
 	{ memcpy(&pCurrSettings->field, &pPrevSettings->field, sizeof(pCurrSettings->field)); }
@@ -45,7 +48,10 @@ class MigrateData {
 	{ pCurrSettings->field = pPrevSettings->field; }
 
 #define STRING_FIELD_MIGR_DOWN(field)                                                                                                                          \
-	{ strncpy(pPrevSettings->field, pCurrSettings->field, sizeof(pPrevSettings->field) - 1); }
+	{                                                                                                                                                              \
+		strncpy(pPrevSettings->field, pCurrSettings->field, sizeof(pPrevSettings->field) - 1);                                                                     \
+		pPrevSettings->field[sizeof(pPrevSettings->field) - 1] = '\0';                                                                                             \
+	}
 
 #define MEM_FIELD_MIGR_DOWN(field)                                                                                                                             \
 	{ memcpy(&pPrevSettings->field, &pCurrSettings->field, sizeof(pPrevSettings->field)); }
